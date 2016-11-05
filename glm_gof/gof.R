@@ -109,22 +109,3 @@ ToyStudy <- function(Ntoys=1000, Nevents=500, beta0=0.25,beta1=2,linkname="logit
   }
   return(data)
 }
-
-BootstrappedToyStudy <- function(Ntoys=1000,Nevents=50,data,linkname="logit") {
-  mylink = make.link(linkname)
-  data <- data.frame("uG2"=numeric(Ntoys),"uX2"=numeric(Ntoys),"uS"=numeric(Ntoys))
-  for (toy in 1:Ntoys) {
-    if (toy %% 50 == 0) print(paste("On toy ",toy))
-    ns <- sample(nrow(data),Nevents,replace=TRUE)
-    subtable <- table[ns,]
-    subtable$Eta <- mylink$linkfun(subtable$Eta)
-    fit <- glm(Correct~Eta*I(Flavour/2),data=subtable,family=binomial(link=linkname))
-    uG2 <- FitGenericMetric(fit,deviance)
-    uX2 <- FitGenericMetric(fit,pearson)
-    uS <- FitGenericMetric(fit,chch)
-    data$uG2[toy] <- uG2
-    data$uX2[toy] <- uX2
-    data$uS[toy] <- uS
-  }
-  return(data)
-}
